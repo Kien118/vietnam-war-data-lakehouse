@@ -1,0 +1,28 @@
+# Data (quá lớn cho GitHub)
+data/
+logs/
+*.csv
+*.parquet
+
+# Environment & Secrets
+.env
+*.pyc
+__pycache__/
+.ipynb_checkpoints/
+
+# Docker volumes
+minio-data/
+postgres-data/
+
+# Python
+.venv/
+dist/
+build/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# Power BI (file lớn, dùng Git LFS nếu cần)
+*.pbix
