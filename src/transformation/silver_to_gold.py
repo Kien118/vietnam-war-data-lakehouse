@@ -193,6 +193,8 @@ def run_silver_to_gold():
         }
 
         for table_name, df_gold in gold_tables.items():
+            if target_table and table_name != target_table:
+                continue 
             write_to_postgres(df_gold, table_name)
 
         elapsed = (datetime.now(timezone.utc) - start).total_seconds()
@@ -205,9 +207,46 @@ def run_silver_to_gold():
         spark.stop()
 
 
+# Thêm vào CUỐI file silver_to_gold.py
+# (thay thế block if __name__ == "__main__" hiện tại)
+
 if __name__ == "__main__":
+    import argparse
+
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
     )
-    run_silver_to_gold()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--table", type=str, required=False, help="Target Gold table to build")
+    args = parser.parse_args()
+
+    spark = get_spark_session(app_name=f"THOR-Gold-{args.table or 'all'}")
+
+    try:
+        logger.info("Reading & caching Silver layer...")
+        df_silver = spark.read.parquet(SILVER_PATH).cache()
+        df_silver.count()
+
+        # Map table name → builder function
+        builders = {
+            "gold_missions_by_year_service":     build_gold_missions_by_year_service,
+            "gold_top_aircraft":                 build_gold_top_aircraft,
+            "gold_bombing_intensity_by_country": build_gold_bombing_intensity_by_country,
+            "gold_monthly_ops_trend":            build_gold_monthly_ops_trend,
+        }
+
+        # Build one table or all
+        targets = (
+            {args.table: builders[args.table]}
+            if args.table
+            else builders
+        )
+
+        for table_name, build_fn in targets.items():
+            df_gold = build_fn(df_silver)
+            write_to_postgres(df_gold, table_name)
+
+    finally:
+        spark.stop()

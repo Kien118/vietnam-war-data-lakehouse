@@ -32,16 +32,13 @@ def get_minio_client() -> Minio:
     Raises:
         EnvironmentError: If required env vars are missing.
     """
-    endpoint = os.getenv("MINIO_ENDPOINT", "localhost:9000")
-    access_key = os.getenv("MINIO_ROOT_USER")
-    secret_key = os.getenv("MINIO_ROOT_PASSWORD")
+    endpoint = os.getenv("MINIO_ENDPOINT", "minio:9000") 
+    
+    # Cung cấp mặc định cứng nếu Airflow không tìm thấy biến môi trường
+    access_key = os.getenv("MINIO_ROOT_USER", "minio_admin")
+    secret_key = os.getenv("MINIO_ROOT_PASSWORD", "minio_secure_pass_2025")
     secure = os.getenv("MINIO_SECURE", "false").lower() == "true"
 
-    if not access_key or not secret_key:
-        raise EnvironmentError(
-            "Missing MinIO credentials. "
-            "Ensure MINIO_ROOT_USER and MINIO_ROOT_PASSWORD are set."
-        )
 
     # Strip the http:// or https:// prefix if accidentally included
     # MinIO client expects just "host:port"

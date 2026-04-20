@@ -110,6 +110,12 @@ def get_spark_session(
         .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
         .config("spark.kryo.unsafe", "true")
 
+        # ── Time Parser Policy ─────────────────────────────────
+        # Ép Spark sử dụng trình phân tích ngày tháng cũ (Legacy),
+        # giúp to_date trả về Null khi sai định dạng thay vì làm sập chương trình.
+        .config("spark.sql.legacy.timeParserPolicy", "LEGACY")
+
+
         # ── Shuffle & Memory ───────────────────────────────────
         # 200 is the Spark default; with 4.5M rows and good
         # partitioning we keep it. AQE will coalesce at runtime.
@@ -124,7 +130,8 @@ def get_spark_session(
         .config(
             "spark.jars.packages",
             "org.apache.hadoop:hadoop-aws:3.3.4,"
-            "com.amazonaws:aws-java-sdk-bundle:1.12.262"
+            "com.amazonaws:aws-java-sdk-bundle:1.12.262,"
+            "org.postgresql:postgresql:42.6.0"
         )
     )
 
