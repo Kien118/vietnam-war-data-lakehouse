@@ -28,6 +28,7 @@ x-airflow-common: &airflow-common
     - ./plugins:/opt/airflow/plugins
     - ./src:/opt/airflow/src # Cho phép DAG gọi src/
     - ./requirements.txt:/requirements.txt
+    - ./data:/opt/airflow/data
   depends_on:
     postgres:
       condition: service_healthy

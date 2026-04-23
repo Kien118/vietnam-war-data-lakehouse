@@ -136,7 +136,7 @@ def enforce_types_and_clean(df: DataFrame) -> DataFrame:
         # to_date handles the raw MM/DD/YYYY format in THOR data.
         # Rows with unparseable dates become null → filtered below.
         .withColumn("mission_date",
-            F.expr("coalesce(try_to_date(MSNDATE, 'MM/dd/yyyy'), try_to_date(MSNDATE, 'yyyy-MM-dd'), try_to_date(MSNDATE, 'yyyyMMdd'))")
+            F.expr("coalesce(to_date(MSNDATE, 'MM/dd/yyyy'), to_date(MSNDATE, 'yyyy-MM-dd'), to_date(MSNDATE, 'yyyyMMdd'))")
         )
         # ── Derive Year & Month ─────────────────────────────────
         # These columns serve DUAL purpose:

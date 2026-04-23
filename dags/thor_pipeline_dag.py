@@ -228,6 +228,8 @@ def thor_medallion_pipeline():
 
         logger.info(f"Starting Bronze ingestion | partition: {ingestion_date}")
 
+        import sys
+        sys.path.append('/opt/airflow')
         # Import here (inside task) so Airflow worker loads it at runtime.
         # This avoids import errors at DAG parse time if src/ not on path.
         from src.ingestion.upload_to_minio import run_ingestion
@@ -335,8 +337,12 @@ def thor_medallion_pipeline():
             f"master: {SPARK_MASTER_URL}"
         )
 
+        spark_env = os.environ.copy()
+        spark_env["SPARK_HOME"] = "/opt/spark"
+        spark_env["PYTHONPATH"] = "/opt/airflow"
+
         cmd = [
-            "spark-submit",
+            "/opt/spark/bin/spark-submit",     # <--- Sửa dòng này
             "--master",        SPARK_MASTER_URL,
             "--name",          "THOR-Bronze-to-Silver",
             "--packages",      (
@@ -356,12 +362,14 @@ def thor_medallion_pipeline():
 
         result = subprocess.run(
             cmd,
+            env=spark_env,
             capture_output=True,
             text=True,
             timeout=3600,   # 60 minutes hard timeout
         )
 
         if result.returncode != 0:
+            logger.error(f"Spark STDOUT:\n{result.stdout[-3000:]}")
             logger.error(f"Spark STDERR:\n{result.stderr[-3000:]}")  # Last 3k chars
             raise AirflowFailException(
                 f"Bronze → Silver Spark job FAILED. "

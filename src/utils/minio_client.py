@@ -32,7 +32,7 @@ def get_minio_client() -> Minio:
     Raises:
         EnvironmentError: If required env vars are missing.
     """
-    endpoint = os.getenv("MINIO_ENDPOINT", "minio:9000") 
+    endpoint = os.getenv("MINIO_ENDPOINT", "host.docker.internal:9005")
     
     # Cung cấp mặc định cứng nếu Airflow không tìm thấy biến môi trường
     access_key = os.getenv("MINIO_ROOT_USER", "minio_admin")
