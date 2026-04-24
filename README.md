@@ -29,7 +29,7 @@ The goal is not historical analysis. The goal is to demonstrate **production-gra
 
 ## 🏛️ Architecture — Medallion Data Lake
 
-```mermaid
+```
 graph TD
     %% Nodes
     Airflow[Apache Airflow <br/> Orchestration & Scheduling]
@@ -37,26 +37,27 @@ graph TD
     subgraph DataLake [Data Lake Layers]
         Bronze[🥉 BRONZE <br/> MinIO - CSV <br/> Raw Data]
         Silver[🥈 SILVER <br/> MinIO - Parquet <br/> Cleaned Data]
-        Gold[🥇 GOLD <br/> PostgreSQL <br/> Aggregated]
+        Gold[🥇 GOLD <br/> PostgreSQL <br/> Aggregated Tables]
     end
 
     PowerBI([Power BI Dashboard])
 
     %% Connections
-    Airflow --> Bronze
-    Airflow --> Silver
-    Airflow --> Gold
+    Airflow -->|Triggers & Monitors| Bronze
+    Airflow -->|Triggers & Monitors| Silver
+    Airflow -->|Triggers & Monitors| Gold
 
-    Bronze -- "PySpark Clean" --> Silver
-    Silver -- "PySpark Agg" --> Gold
-    Gold --> PowerBI
+    Bronze -- "PySpark Transformation" --> Silver
+    Silver -- "PySpark Aggregation" --> Gold
+    Gold -->|DirectQuery| PowerBI
 
     %% Styling
-    style Airflow fill:#e1f5fe,stroke:#01579b
+    style Airflow fill:#e1f5fe,stroke:#01579b,stroke-width:2px
     style Bronze fill:#fff3e0,stroke:#e65100
     style Silver fill:#f3e5f5,stroke:#4a148c
     style Gold fill:#e8f5e9,stroke:#1b5e20
-    style PowerBI fill:#fffde7,stroke:#fbc02d
+    style PowerBI fill:#fffde7,stroke:#fbc02d,stroke-width:2px
+```
 
 ### Data Flow
 
