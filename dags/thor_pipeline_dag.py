@@ -447,8 +447,12 @@ def thor_medallion_pipeline():
 
         logger.info(f"Building Gold table: {table_name}")
 
+        spark_env = os.environ.copy()
+        spark_env["SPARK_HOME"] = "/opt/spark"
+        spark_env["PYTHONPATH"] = "/opt/airflow"
+
         cmd = [
-            "spark-submit",
+            "/opt/spark/bin/spark-submit",
             "--master",   SPARK_MASTER_URL,
             "--name",     f"THOR-Gold-{table_name}",
             "--packages", (
@@ -467,9 +471,10 @@ def thor_medallion_pipeline():
             "--table", table_name,
         ]
 
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
+        result = subprocess.run(cmd, env=spark_env, capture_output=True, text=True, timeout=1800)
 
         if result.returncode != 0:
+            logger.error(f"Spark STDOUT:\n{result.stdout[-2000:]}")
             logger.error(f"Spark STDERR:\n{result.stderr[-3000:]}")
             raise AirflowFailException(
                 f"Gold job FAILED for table: {table_name}. "

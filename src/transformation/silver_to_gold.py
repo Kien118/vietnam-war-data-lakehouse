@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 SILVER_PATH  = "s3a://thor-silver/vietnam_bombing_clean/"
 
 # PostgreSQL connection (Spark JDBC)
-PG_HOST     = "localhost"
+PG_HOST     = "172.19.0.4"
 PG_PORT     = "5432"
 PG_DB       = "thor_warehouse"
 PG_USER     = "thor_admin"
