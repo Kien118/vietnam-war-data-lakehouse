@@ -29,7 +29,7 @@ The goal is not historical analysis. The goal is to demonstrate **production-gra
 
 ## 🏛️ Architecture — Medallion Data Lake
 
-```
+```mermaid
 graph TD
     %% Nodes
     Airflow[Apache Airflow <br/> Orchestration & Scheduling]
@@ -57,7 +57,6 @@ graph TD
     style Silver fill:#f3e5f5,stroke:#4a148c
     style Gold fill:#e8f5e9,stroke:#1b5e20
     style PowerBI fill:#fffde7,stroke:#fbc02d
-```
 
 ### Data Flow
 
