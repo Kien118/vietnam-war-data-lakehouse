@@ -57,6 +57,7 @@ graph TD
     style Silver fill:#f3e5f5,stroke:#4a148c
     style Gold fill:#e8f5e9,stroke:#1b5e20
     style PowerBI fill:#fffde7,stroke:#fbc02d,stroke-width:2px
+```
 
 ### Data Flow
 
