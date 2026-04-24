@@ -20,43 +20,41 @@
 
 This project builds a **fully automated, end-to-end data pipeline** over the **THOR (Theater History of Operations Reports)** dataset — a declassified U.S. Department of Defense record of **4.67 million bombing missions** conducted during the Vietnam War (1964–1975).
 
-The goal is to demonstrate **production-grade Data Engineering practices**: scalable ingestion, Spark performance tuning, layered data quality enforcement, orchestrated automation, and BI-ready output — all running locally with zero cloud dependency.
+The goal is not historical analysis. The goal is to demonstrate **production-grade Data Engineering practices**: scalable ingestion, Spark performance tuning, layered data quality enforcement, orchestrated automation, and BI-ready output — all running locally with zero cloud dependency.
 
-> **Dataset Source:** [THOR Vietnam Bombing Operations — Kaggle](https://www.kaggle.com/datasets/usaf/vietnam-bombing-data)
+> **Dataset Source:** [THOR Vietnam Bombing Operations — Kaggle / U.S. DoD](https://www.kaggle.com/datasets/usaf/vietnam-bombing-data)
 > **Records:** ~4.67 million rows · **Raw Size:** ~1.6 GB CSV
 
 ---
 
 ## 🏛️ Architecture — Medallion Data Lake
 
-```mermaid
-graph TD
-    %% Nodes
-    Airflow[Apache Airflow <br/> Orchestration & Scheduling]
-    
-    subgraph DataLake [Data Lake Layers]
-        Bronze[🥉 BRONZE <br/> MinIO - CSV <br/> Raw Data]
-        Silver[🥈 SILVER <br/> MinIO - Parquet <br/> Cleaned Data]
-        Gold[🥇 GOLD <br/> PostgreSQL <br/> Aggregated Tables]
-    end
-
-    PowerBI([Power BI Dashboard])
-
-    %% Connections
-    Airflow -->|Triggers & Monitors| Bronze
-    Airflow -->|Triggers & Monitors| Silver
-    Airflow -->|Triggers & Monitors| Gold
-
-    Bronze -- "PySpark Transformation" --> Silver
-    Silver -- "PySpark Aggregation" --> Gold
-    Gold -->|DirectQuery| PowerBI
-
-    %% Styling
-    style Airflow fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    style Bronze fill:#fff3e0,stroke:#e65100
-    style Silver fill:#f3e5f5,stroke:#4a148c
-    style Gold fill:#e8f5e9,stroke:#1b5e20
-    style PowerBI fill:#fffde7,stroke:#fbc02d,stroke-width:2px
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        Apache Airflow                               │
+│              (Orchestration · Monthly Schedule · DAG)               │
+└───────────────────────────┬─────────────────────────────────────────┘
+                            │  triggers & monitors
+          ┌─────────────────┼──────────────────────┐
+          ▼                 ▼                      ▼
+  ┌───────────────┐  ┌─────────────┐      ┌──────────────────┐
+  │  🥉  BRONZE   │  │  🥈 SILVER  │      │    🥇  GOLD      │
+  │               │  │             │      │                  │
+  │  MinIO        │  │  MinIO      │      │  PostgreSQL      │
+  │  (S3-compat.) │  │  (S3-compat)│      │  (Data Warehouse)│
+  │               │  │             │      │                  │
+  │  Format: CSV  │  │ Format:     │      │  Format: Tables  │
+  │  Raw, immutable│ │ Parquet     │      │  Aggregated      │
+  │               │  │ +Snappy     │      │  BI-ready        │
+  │  Partitioned: │  │             │      │                  │
+  │  ingestion_   │  │ Partitioned:│      │  4 Gold tables   │
+  │  date=        │  │ year/month  │      │  for Power BI    │
+  └───────┬───────┘  └──────┬──────┘      └────────┬─────────┘
+          │                 │                      │
+          │  PySpark        │  PySpark             │
+          │  (Schema +      │  (Business           │  Power BI
+          │   Cleaning)     │   Aggregations)      │  Dashboard
+          └─────────────────┴──────────────────────┘
 ```
 
 ### Data Flow
