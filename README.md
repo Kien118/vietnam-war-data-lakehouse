@@ -30,31 +30,33 @@ The goal is not historical analysis. The goal is to demonstrate **production-gra
 ## 🏛️ Architecture — Medallion Data Lake
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        Apache Airflow                               │
-│              (Orchestration · Monthly Schedule · DAG)               │
-└───────────────────────────┬─────────────────────────────────────────┘
-                            │  triggers & monitors
-          ┌─────────────────┼──────────────────────┐
-          ▼                 ▼                      ▼
-  ┌───────────────┐  ┌─────────────┐      ┌──────────────────┐
-  │  🥉  BRONZE   │  │  🥈 SILVER  │      │    🥇  GOLD      │
-  │               │  │             │      │                  │
-  │  MinIO        │  │  MinIO      │      │  PostgreSQL      │
-  │  (S3-compat.) │  │  (S3-compat)│      │  (Data Warehouse)│
-  │               │  │             │      │                  │
-  │  Format: CSV  │  │ Format:     │      │  Format: Tables  │
-  │  Raw, immutable│ │ Parquet     │      │  Aggregated      │
-  │               │  │ +Snappy     │      │  BI-ready        │
-  │  Partitioned: │  │             │      │                  │
-  │  ingestion_   │  │ Partitioned:│      │  4 Gold tables   │
-  │  date=        │  │ year/month  │      │  for Power BI    │
-  └───────┬───────┘  └──────┬──────┘      └────────┬─────────┘
-          │                 │                      │
-          │  PySpark        │  PySpark             │
-          │  (Schema +      │  (Business           │  Power BI
-          │   Cleaning)     │   Aggregations)      │  Dashboard
-          └─────────────────┴──────────────────────┘
+graph TD
+    %% Nodes
+    Airflow[Apache Airflow <br/> Orchestration & Scheduling]
+    
+    subgraph DataLake [Data Lake Layers]
+        Bronze[🥉 BRONZE <br/> MinIO - CSV <br/> Raw Data]
+        Silver[🥈 SILVER <br/> MinIO - Parquet <br/> Cleaned Data]
+        Gold[🥇 GOLD <br/> PostgreSQL <br/> Aggregated]
+    end
+
+    PowerBI([Power BI Dashboard])
+
+    %% Connections
+    Airflow --> Bronze
+    Airflow --> Silver
+    Airflow --> Gold
+
+    Bronze -- "PySpark Clean" --> Silver
+    Silver -- "PySpark Agg" --> Gold
+    Gold --> PowerBI
+
+    %% Styling
+    style Airflow fill:#e1f5fe,stroke:#01579b
+    style Bronze fill:#fff3e0,stroke:#e65100
+    style Silver fill:#f3e5f5,stroke:#4a148c
+    style Gold fill:#e8f5e9,stroke:#1b5e20
+    style PowerBI fill:#fffde7,stroke:#fbc02d
 ```
 
 ### Data Flow
