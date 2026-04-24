@@ -20,16 +20,16 @@
 
 This project builds a **fully automated, end-to-end data pipeline** over the **THOR (Theater History of Operations Reports)** dataset — a declassified U.S. Department of Defense record of **4.67 million bombing missions** conducted during the Vietnam War (1964–1975).
 
-The goal is not historical analysis. The goal is to demonstrate **production-grade Data Engineering practices**: scalable ingestion, Spark performance tuning, layered data quality enforcement, orchestrated automation, and BI-ready output — all running locally with zero cloud dependency.
+The goal is to demonstrate **production-grade Data Engineering practices**: scalable ingestion, Spark performance tuning, layered data quality enforcement, orchestrated automation, and BI-ready output — all running locally with zero cloud dependency.
 
-> **Dataset Source:** [THOR Vietnam Bombing Operations — Kaggle / U.S. DoD](https://www.kaggle.com/datasets/usaf/vietnam-bombing-data)
+> **Dataset Source:** [THOR Vietnam Bombing Operations — Kaggle](https://www.kaggle.com/datasets/usaf/vietnam-bombing-data)
 > **Records:** ~4.67 million rows · **Raw Size:** ~1.6 GB CSV
 
 ---
 
 ## 🏛️ Architecture — Medallion Data Lake
 
-```
+```mermaid
 graph TD
     %% Nodes
     Airflow[Apache Airflow <br/> Orchestration & Scheduling]
@@ -57,7 +57,6 @@ graph TD
     style Silver fill:#f3e5f5,stroke:#4a148c
     style Gold fill:#e8f5e9,stroke:#1b5e20
     style PowerBI fill:#fffde7,stroke:#fbc02d,stroke-width:2px
-```
 
 ### Data Flow
 
