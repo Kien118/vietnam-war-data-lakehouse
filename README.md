@@ -785,6 +785,10 @@ pytest tests/ --cov=src --cov-report=term-missing
 
 ---
 
+## 📊 Gold Layer Dashboard (Power BI)
+
+![THOR Data Pipeline Dashboard](docs/images/dashboard.png)
+
 ## 🔁 Pipeline DAG — Airflow Graph
 
 ```
